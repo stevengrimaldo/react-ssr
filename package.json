@@ -7,7 +7,6 @@
     "connected-react-router": "^6.0.0",
     "emotion": "^10.0.5",
     "express": "^4.16.4",
-    "fs": "^0.0.1-security",
     "path": "^0.12.7",
     "polished": "^2.3.1",
     "react": "^16.6.3",
