@@ -4,17 +4,15 @@ import { StaticRouter } from 'react-router';
 import { Provider } from 'react-redux';
 import Helmet from 'react-helmet';
 import { renderString } from 'template-file';
-import {
-  ServerStyleSheet,
-  StyleSheetManager,
-  ThemeProvider
-} from 'styled-components';
+import { renderStylesToString } from 'emotion-server';
+import { ThemeProvider } from 'emotion-theming';
+import { createMemoryHistory } from 'history';
 
 import App from '../../src/App';
-import theme from '../../src/global/theme';
 import template from '../templates';
+import theme from '../../src/global/theme';
 import manifest from '../../build/asset-manifest.json';
-import createStore from '../src/store';
+import configureStore from '../../src/store';
 
 module.exports = (req, res) => {
   const context = {};
@@ -26,26 +24,24 @@ module.exports = (req, res) => {
     try {
       const pageUrl = req.url;
       const modules = [];
+      const history = createMemoryHistory({ initialEntries: ['/'] });
 
       // Create a store (with a memory history) from our current url
-      const { store } = createStore(pageUrl);
+      const store = configureStore({}, history);
 
       // Get a copy of store data to create the same store on client side
       const state = JSON.stringify(store.getState()).replace(/</g, '\\u003c');
 
-      // Pull CSS from Styled Components
-      const sheet = new ServerStyleSheet();
-
-      const body = renderToString(
-        <Provider store={store}>
-          <StyleSheetManager sheet={sheet.instance}>
-            <ThemeProvider theme={theme}>
-              <StaticRouter location={pageUrl} context={context}>
+      const body = renderStylesToString(
+        renderToString(
+          <Provider store={store}>
+            <StaticRouter location={pageUrl} context={context}>
+              <ThemeProvider theme={theme}>
                 <App data={state} />
-              </StaticRouter>
-            </ThemeProvider>
-          </StyleSheetManager>
-        </Provider>
+              </ThemeProvider>
+            </StaticRouter>
+          </Provider>
+        )
       );
 
       // Let's give ourself a function to load all our page-specific JS assets for code splitting
@@ -79,7 +75,7 @@ module.exports = (req, res) => {
       const RenderedApp = renderString(template, data);
 
       // We have all the final HTML, let's send it to the user already!
-      res.send(RenderedApp);
+      return res.send(RenderedApp);
     } catch (error) {
       console.error(error);
       res.send(error);

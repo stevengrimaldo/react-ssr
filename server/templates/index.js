@@ -3,7 +3,7 @@ module.exports = /* @html */ `
 <!DOCTYPE html>
 <html {{htmlAttributes}}>
 <head>
-  <title>{{title}}</title>
+  {{title}}
 
   <meta charset="utf-8" />
   <meta httpEquiv="X-UA-Compatible" content="IE=edge" />

@@ -2,29 +2,32 @@ import React from 'react';
 import { hydrate, render } from 'react-dom';
 import { Provider } from 'react-redux';
 import { ConnectedRouter } from 'connected-react-router';
-import { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'emotion-theming';
+import { createBrowserHistory } from 'history';
 
 import App from './App';
-import createStore from '../server/store';
+import configureStore from './store';
 import theme from './global/theme';
-import './global';
+import sig from './global/sig';
+
+process.env.NODE_ENV === 'production' && console.log(sig);
 
 // Create a store and get back itself and its history object
-const { store, history } = createStore();
-
+const initialState =
+  typeof window !== 'undefined' ? window.__PRELOADED_STATE__ : {};
+const history = createBrowserHistory();
+const store = configureStore(initialState, history);
 const root = document.getElementById('root');
 
-const state = window !== 'undefined' ? window.__PRELOADED_STATE__ : {};
-
-// Running locally, we should run on a <ConnectedRouter /> rather than on a <StaticRouter /> like on the server
-// Let's also let React Frontload explicitly know we're not rendering on the server here
+// Running locally, we should run on a <ConnectedRouter /> rather than on a
+// <StaticRouter /> like on the server
 const Application = (
   <Provider store={store}>
-    <ThemeProvider theme={theme}>
-      <ConnectedRouter history={history}>
-        <App data={state} />
-      </ConnectedRouter>
-    </ThemeProvider>
+    <ConnectedRouter history={history}>
+      <ThemeProvider theme={theme}>
+        <App data={initialState} />
+      </ThemeProvider>
+    </ConnectedRouter>
   </Provider>
 );
 
