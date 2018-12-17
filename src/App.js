@@ -4,11 +4,13 @@ import Helmet from 'react-helmet';
 import { Global } from '@emotion/core';
 
 import globalStyles from './global';
+import Home from './pages/Home';
+import NoMatch from './pages/NoMatch';
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
+      <div>
         <Global styles={globalStyles} />
         <Helmet
           htmlAttributes={{
@@ -16,12 +18,9 @@ class App extends Component {
           }}
           title="title test"
         />
-        <header className="App-header">
-          <p>Home</p>
-        </header>
         <Switch>
-          <Route exact path="/" render={() => <div>Match</div>} />
-          <Route render={() => <div>Miss</div>} />
+          <Route exact path="/" render={props => <Home {...props} />} />
+          <Route render={props => <NoMatch {...props} />} />
         </Switch>
       </div>
     );
